@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+from skimage.measure import ransac
+from skimage.transform import FundamentalMatrixTransform
 
 class FrameProcessor(object):
     def __init__(self, w, h):
@@ -29,18 +31,23 @@ class FrameProcessor(object):
         matches = None
 
         # feature matching
-        query = []
-        train = []
+        ret = []
 
         if self.last is not None:
             matches = self.flann.knnMatch(des, self.last['descriptors'], k=2)
             for m,n in matches:
                 if m.distance < 0.75*n.distance:
-                    query.append(kps[m.queryIdx])
-                    train.append(self.last['kps'][m.trainIdx])
+                    kp1 = kps[m.queryIdx].pt
+                    kp2 = self.last['kps'][m.trainIdx].pt
+                    ret.append((kp1, kp2))
+
         self.last = {'kps':kps, 'descriptors':des}
 
         if matches is None:
-            return [],[],None,corners
+            return np.array([]), None,corners
 
-        return query, train , matches, corners
+        if(len(ret) > 0):
+            ret = np.array(ret)
+            model, inliers = ransac((ret[:, 0], ret[:,1]), FundamentalMatrixTransform, min_samples=8, residual_threshold=1, max_trials=100)
+            ret = ret[inliers]
+        return ret, matches, corners

@@ -22,7 +22,7 @@ while(cap.isOpened()):
     frame = cv2.resize(frame, (W, H))
 
 
-    queryMatches, trainMatches, matches, corners = processor.processFrame(frame)
+    fmatch, matches, corners = processor.processFrame(frame)
 
 
 
@@ -37,11 +37,9 @@ while(cap.isOpened()):
 
 
 
-    if(queryMatches):
-        for index,match in enumerate(queryMatches):
-            point1 = match.pt
-            point2 = trainMatches[index].pt
-            cv2.line(frame, (int(point1[0]), int(point1[1])), (int(point2[0]), int(point2[1])), (0, 255, 0), 2)
+    if(fmatch.any()):
+        for pt1,pt2 in fmatch:
+            cv2.line(frame, (int(pt1[0]), int(pt1[1])), (int(pt2[0]), int(pt2[1])), (0, 255, 0), 2)
 
 
     cv2.imshow('Frame', frame)
