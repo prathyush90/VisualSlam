@@ -22,8 +22,10 @@ while(cap.isOpened()):
     frame = cv2.resize(frame, (W, H))
 
 
-    fmatch, matches, corners = processor.processFrame(frame)
+    fmatch, matches, corners, pose = processor.processFrame(frame)
 
+    if pose is None:
+        continue
 
 
 
@@ -38,7 +40,10 @@ while(cap.isOpened()):
 
 
     if(fmatch.any()):
+
         for pt1,pt2 in fmatch:
+            pt1 = processor.denormalize(pt1)
+            pt2 = processor.denormalize(pt2)
             cv2.line(frame, (int(pt1[0]), int(pt1[1])), (int(pt2[0]), int(pt2[1])), (0, 255, 0), 2)
 
 
