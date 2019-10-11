@@ -80,7 +80,7 @@ class FrameProcessor(object):
             ret[:, 0, :] = self.normalize(ret[:, 0, :])
             ret[:, 1, :] = self.normalize(ret[:, 1, :])
 
-            model, inliers = ransac((ret[:, 0], ret[:,1]), EssentialMatrixTransform, min_samples=8, residual_threshold=0.005, max_trials=200)
+            model, inliers = ransac((ret[:, 0], ret[:,1]), EssentialMatrixTransform, min_samples=8, residual_threshold=0.001, max_trials=200)
             ret = ret[inliers]
             pose = self.extractRt(model.params)
         return ret, matches, corners, pose
